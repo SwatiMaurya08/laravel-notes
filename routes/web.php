@@ -11,6 +11,8 @@
 |
 */
 
+use Illuminate\Support\Facades\Auth;
+
 Route::get('/', [
     'uses' => 'PostController@getIndex',
     'as' => 'blog.index'
@@ -94,8 +96,8 @@ Auth::routes();
 
 
 Route::post('login', [
-    'uses' => 'SigninController@signin',
+    'uses' => 'SignInController@signin',
     'as' => 'auth.signin'
 ]);
 
-
+Route::get('logout', '\App\Http\Controllers\Auth\LoginController@logout');

@@ -5,7 +5,7 @@
         <div class="row justify-content-center">
             <div class="col-md-8">
                 @if(Session::has('fail'))
-                    <div class="alert alert-danger">
+                    <div class="alert-danger">
                         {{Session::get('fail')}}
                     </div>
                 @endif

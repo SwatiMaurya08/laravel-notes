@@ -3,23 +3,23 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
-class SigninController extends Controller
+class SignInController extends Controller
 {
     public function signin(Request $request)
     {
-        dd('Our Own Auth');
         $this->validate($request, [
-            'email' => 'required' | 'email',
+            'email' => 'required|email',
             'password' => 'required'
-
         ]);
-        if (Auth::attempt(['email' => $request->input('email'),
+
+        if (Auth::attempt([
+            'email' => $request->input('email'),
             'password' => $request->input('password')
         ], $request->has('remember'))) {
             return redirect()->route('admin.index');
         }
-        return redirect()->back()->with('fail', 'Authentication Failed!!!');
+        return redirect()->back()->with('fail', 'Authentication failed');
     }
 }

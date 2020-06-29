@@ -9,23 +9,13 @@
 
             <li><a class="nav-item nav-link" href="{{ route('blog.index') }}">Blog</a></li>
             <li><a class="nav-item nav-link" href="{{ route('others.about') }}">About</a></li>
-            <li><a class="nav-item nav-link" href="{{ route('others.contact') }}">Contact Us</a></li>
             @if(!Auth::check())
                 <li><a class="nav-item nav-link" href="{{ url('/login') }}">Login</a></li>
                 <li><a class="nav-item nav-link" href="{{ url('/register') }}">Register</a></li>
             @else
-
+                <li><a class="nav-item nav-link" href="{{ route('others.contact') }}">Contact Us</a></li>
                 <li><a class="nav-item nav-link" href="{{ route('admin.index') }}">Posts</a></li>
-                <li>
-                    <a class="nav-item nav-link" href="{{ url('/logout') }}"
-                       onclick="event.preventDefault(); document.getElementById('logout-form');">
-                        Logout
-                    </a>
-                    <form id="logout-form" action="{{ url('/logout') }}" method="POST" style="...">
-                        {{csrf_field()}}
-
-                    </form>
-                </li>
+                <li><a class="nav-item nav-link" href="{{ url('/logout') }}">Logout</a></li>
             @endif
         </div>
     </div>
