@@ -44,9 +44,8 @@ class AuthController extends Controller
     {
 
         $this->validate($request, [
-            'name' => 'required',
             'email' => 'required|email',
-            'password' => 'required|min:5'
+            'password' => 'required'
 
         ]);
         $email = $request->input('email');
