@@ -132,11 +132,26 @@ class MeetingController extends Controller
             ]
 
         ];
-$meeting = Meeting::with('users')->findOrFail($id);
-if($meeting->users()->where('users.id' , $user_id)->first()){
+        $meeting = Meeting::with('users')->findOrFail($id);
+        if($meeting->users()->where('users.id' , $user_id)->first()){
 
-    return response()->json(['msg' => 'User not  registered for meeting , update not  succesfull'], 401);
-};
+        return response()->json(['msg' => 'User not  registered for meeting , update not  succesfull'], 401);
+    };
+
+        $meeting->time = Carbon::createFormFormate('YmdHie' , $time) ;
+        $meeting->title = $title;
+        $meeting->description = $description;
+        if(!$meeting->update()){
+            return response()->json(['msg' => 'Error During Updating'] , 404);
+        }
+
+
+        $meeting->view_meeting = [
+        'href' => 'api/v1/meeting/'  .  $meeting->id,
+        'method' => 'GET'
+
+        ]
+
         $response = [
             'msg' => 'Meeting Updated!!!',
             'meeting' => $meeting
@@ -153,6 +168,18 @@ if($meeting->users()->where('users.id' , $user_id)->first()){
      */
     public function destroy($id)
     {
+
+        $meeting = Meeting::findOrFail($id);
+        $users = $meeting->users;
+        $meeting->users()->detach();
+        if(!$meeting->delete()){
+        foreach($user as $user){
+        $meeting->users()->attach($user);
+
+        }
+                return response()->json(['msg' => 'Deletion Failed!!'] , 404)
+        }
+
         $response = [
             'msg' => 'Meeting deleted!!!',
             'create' => [

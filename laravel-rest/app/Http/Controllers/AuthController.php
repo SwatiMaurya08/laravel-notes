@@ -22,7 +22,6 @@ class AuthController extends Controller
 
 
     $user = new user([
-
           'name' => $name ,
           'email'=>$email,
           'password'=> bcrypt($password)
