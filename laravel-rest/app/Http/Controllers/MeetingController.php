@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Meeting;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class MeetingController extends Controller
 {
@@ -18,27 +19,21 @@ class MeetingController extends Controller
      */
     public function index()
     {
-        $meeting = [
-            'title' => 'Title',
-            'description' => 'Description',
-            'time' => 'Time',
-            'user_id' => 'User Id',
-            'view_meeting' => [
-                'href' => 'api/v1/meeting/1',
+        $meetings = Meeting::all();
+        foreach($meetings as $meeting){
+            $meeting ->view_meeting = [
+                'href' => 'api/v1/meeting/' . $meeting->id,
                 'method' => 'GET'
-            ]
+            ];
+        }
 
-        ];
 
         $response = [
             'msg' => 'List of all Meetings',
-            'meetings' => [
-                $meeting,
-                $meeting
-            ]
+            'meetings' => $meetings
 
         ];
-        return response()->json($response, 201);
+        return response()->json($response, 200);
     }
 
 
@@ -47,6 +42,7 @@ class MeetingController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request)
     {
@@ -61,23 +57,24 @@ class MeetingController extends Controller
         $time = $request->input('time');
         $user_id = $request->input('user_id');
 
-        $meeting = [
-            'title' => $title,
-            'description' => $description,
-            'time' => $time,
-            'user_id' => $user_id,
-            'view_meeting' => [
-                'href' => 'api/v1/meeting/1',
-                'method' => 'GET'
-            ]
+        $meeting = new Meeting([
+           'time' => Carbon::createFromFormat('YmdHie', $time),
+           'title' => $title,
+           'description'  => $description
+        ]);
 
-        ];
-
-        $response = [
-            'msg' => 'Meeting created!!!',
-            'meeting' => $meeting
-        ];
-        return response()->json($response, 201);
+        if($meeting->save()){
+            $meeting->users()->attach($user_id);
+            $meeting->view_meeting = [
+            'href' => 'api/v1/meeting/' . $meeting->id,
+            'method' => 'GET'
+            ];
+            $message=[
+                'msg' => 'Meeting created',
+                'meeting'=> $meeting
+            ];
+            return response()->json($message, 201);
+        }  
     }
 
     /**
@@ -88,15 +85,10 @@ class MeetingController extends Controller
      */
     public function show($id)
     {
-        $meeting = [
-            'title' => 'Title',
-            'description' => 'Description',
-            'time' => 'Time',
-            'user_id' => 'User Id',
-            'view_meeting' => [
-                'href' => 'api/v1/meeting/',
-                'method' => 'GET'
-            ]
+      $meeting = Meeting::with('users')->where('id' , $id)->firstOrFail();
+      $meeting->view_meeting = [
+        'href' => 'api/v1/meeting/',
+        'method' => 'GET'
 
         ];
 
@@ -124,12 +116,11 @@ class MeetingController extends Controller
             'time' => 'required|date_format:YmdHie',
             'user_id' => 'required'
         ]);
-        
+
         $title = $request->input('title');
         $description = $request->input('description');
         $time = $request->input('time');
         $user_id = $request->input('user_id');
-
         $meeting = [
             'title' => $time,
             'description' => $description,
@@ -141,7 +132,11 @@ class MeetingController extends Controller
             ]
 
         ];
+$meeting = Meeting::with('users')->findOrFail($id);
+if($meeting->users()->where('users.id' , $user_id)->first()){
 
+    return response()->json(['msg' => 'User not  registered for meeting , update not  succesfull'], 401);
+};
         $response = [
             'msg' => 'Meeting Updated!!!',
             'meeting' => $meeting
